@@ -10,6 +10,7 @@
     "bcrypt-nodejs": "0.0.3",
     "body-parser": "^1.17.1",
     "connect-timeout": "^1.8.0",
+    "csvtojson": "^1.1.4",
     "ejs": "^2.4.1",
     "express": "^4.15.2",
     "express-session": "^1.13.0",
@@ -17,7 +18,8 @@
     "passport": "^0.3.2",
     "passport-http": "^0.3.0",
     "passport-http-bearer": "^1.0.1",
-    "request": "^2.80.0"
+    "request": "^2.80.0",
+    "sqlite3": "^3.1.8"
   },
   "engines": {
     "node": "^5.7.0"

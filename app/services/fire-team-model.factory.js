@@ -5,8 +5,11 @@ angular.module('fireTeam.common')
 	var fireTeamModel, playerPromises;
 
 	var fireTeamModelObject = {
-		getFireTeam: function(memberType, userNames) {
-			return $q.when(fireTeamModel || playerPromises || getFireTeamMembers(memberType, userNames));
+		getFireTeam: function(platformString, userNames) {
+			return $q.when(fireTeamModel || playerPromises || getFireTeamMembers(platformString, userNames));
+		},
+		getCharacterInfo: function(member, characters) {
+			return getCharacterData(member, character);
 		},
 		clear: clear
 	};	
@@ -16,14 +19,13 @@ angular.module('fireTeam.common')
 			playerPromises = null;
 		}
 
-	function getFireTeamMembers(memberType, userNames) {
+	function getFireTeamMembers(platformString, userNames) {
 		var deferred = $q.defer();
 		var playerPromises = [];
+		var memberType = platformString == 'ps4' ? 2 : 1; 
 
 		angular.forEach(userNames, function(user){
-			if(user.displayName && user.displayName !== ''){
-				playerPromises.push(getPlayerData(memberType, user.displayName));
-			}
+			playerPromises.push(getPlayerData(memberType, user));
 		});
 
 		return fireTeamModel = $q.all(playerPromises);
@@ -74,6 +76,12 @@ angular.module('fireTeam.common')
 			return deferred.promise;
 		});
 		return deferred.promise;
+	};
+
+	function getCharacterData(member, characters){
+		playerOptionsService.getBaseCharacterInfo({membershipId: membershipId}).then(function (response) {	
+			return response.Response.data;
+		});
 	};
 
 	function getBaseCharacterInfo(membershipId){

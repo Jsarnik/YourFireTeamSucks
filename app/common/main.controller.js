@@ -1,9 +1,9 @@
 angular.module('fireTeam.common')
 	.controller('mainCtrl', MainCtrl);
 
-	MainCtrl.$inject = ['$rootScope','$scope', '$state', '$location', 'GoogleAnalyticsService', 'FireTeamModelFactory', 'ActivityModelFactory', '$timeout', '$cookies'];
+	MainCtrl.$inject = ['$rootScope','$scope', '$state', '$location', 'GoogleAnalyticsService', 'FireTeamModelFactory', 'ActivityModelFactory', '$timeout', '$cookies', 'SearchCriteriaService', 'PlayerOptionsService', '$window'];
 
-	function MainCtrl($rootScope, $scope, $state, $location, googleAnalyticsService, fireTeamModelFactory, activityModelFactory, $timeout, $cookies) {
+	function MainCtrl($rootScope, $scope, $state, $location, googleAnalyticsService, fireTeamModelFactory, activityModelFactory, $timeout, $cookies, searchCriteriaService, playerOptionsService, $window) {
 
 		var m = $scope.m = {
 			fireTeamActivityResults: [],
@@ -45,7 +45,7 @@ angular.module('fireTeam.common')
 		m.selectedPlatform = m.platformTypes.ps4;
 		m.pageInitialized = false;
 		m.instanceInterval;
-		m.searchCriteria = null;
+		m.searchCriteria = searchCriteriaService.getSearchCriteria();
 		m.lastSuccessSearchCriteria = null;
 		m.maxMatchAttempts = 10;
 		m.matchAttempts = 0;
@@ -69,7 +69,7 @@ angular.module('fireTeam.common')
 		$rootScope.$on("$stateChangeStart", function (event, toState, toParams, fromState, fromParams) {
 			googleAnalyticsService.pageLoad($location.absUrl(), toState.name);
 			m.currentStateParams = toParams;
-			var membersArray = toParams.members ? toParams.members.split(';') : '';
+			var membersArray = toParams.members ? toParams.members.split(';') : [];
 
 			m.selectedPlatform = m.platformTypes[toParams.platform] || m.selectedPlatform;
 
@@ -84,13 +84,14 @@ angular.module('fireTeam.common')
 						})
 					}) 
 				}
-				
-				m.playersArrays = [];
 
+				var fireTeamMembers = [];
 				angular.forEach(membersArray, function(player){
-					m.playersArrays.push({displayName: player, isPlaceHolder : false});
+					fireTeamMembers.push({displayName: player, isPlaceHolder : false});
 				});
 
+				m.playersArrays = fireTeamMembers || m.searchCriteria.members;
+				
 				if(toParams.instanceId){
 					loadActivityByIdParameter(toParams.instanceId);
 				}
@@ -108,6 +109,12 @@ angular.module('fireTeam.common')
 			}
 			
 		});
+
+		$scope.signIn = function(){
+			
+			//$scope.m.calcWindow = $window.open('https://www.bungie.net/en/Application/Authorize/11587', '', 'width=320, height=591, location=0');
+			$scope.$broadcast("AuthorizationPageCalled",{ fromState: $state.current.name });
+		}
 
 		$scope.$watch('m.playersArrays', function(newVal, oldVal){
 			if(newVal.length <= 1 && newVal[0].isPlaceHolder){
@@ -130,6 +137,7 @@ angular.module('fireTeam.common')
 			buildGameModeObj();
 			checkRecentSearches();
 			m.pageInitialized = true;
+			//m.searchCriteria = searchCriteriaService.getSearchCriteria();
 		}
 
 		function setSearchCriteria(){
@@ -148,7 +156,7 @@ angular.module('fireTeam.common')
 
 			m.isNewSearch = !angular.equals(m.searchCriteria, m.lastSuccessSearchCriteria);
 
-			setCookie('searchCriteria', m.searchCriteria);
+			searchCriteriaService.setSearchCriteria(m.searchCriteria);
 		}
 
 		function buildGameModeObj(){
@@ -347,7 +355,7 @@ angular.module('fireTeam.common')
 			m.fireTeamActivityResults = [];
 			fireTeamModelFactory.clear();
 
-			fireTeamModelFactory.getFireTeam(m.selectedPlatform.id, m.playersArrays).then(function(response){
+			fireTeamModelFactory.getFireTeam(m.selectedPlatform.displayValue, m.searchCriteria.members).then(function(response){
 				var playerResponseError = false;
 				angular.forEach(response, function(playerResponse){
 					if((playerResponse.status && playerResponse.status !== 200) || (playerResponse.data && playerResponse.data.ErrorCode)){
@@ -361,9 +369,6 @@ angular.module('fireTeam.common')
 				}
 
 				m.fireTeamMembers = response;
-
-				// console.log(m.fireTeamMembers)
-
 				m.fireTeamMembers.gameMode = m.selectedGameMode.value;
 				m.fireTeamMembers.pageNum = 0;
 

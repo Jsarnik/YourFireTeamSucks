@@ -1,18 +1,10 @@
-
-<!-- <div ng-repeat="player in m.fireTeamMembers track by $index">
-	<span>{{player.membershipInfo.displayName}}</span>
-	<div ng-repeat="character in player.characters track by $index">
-		{{character.className}}
-	</div>
-</div> -->
-
 <toggle-section is-open="m.isShowActivityList" section-title="Activity List" ng-if="m.fireTeamActivityResults.length > 0">
 	<div class="section-header">
 		<span>
 			Activity involving the following players:
 		</span>
 		<span ng-repeat="player in m.fireTeamMembers track by $index">
-			{{player.membershipInfo.displayName}}
+			<a class="" href="/#!/members">{{player.membershipInfo.displayName}}</a>
 		</span>
 		<br/>
 		<span>

@@ -3,6 +3,7 @@ angular.module('fireTeam.common')
     'use strict';
 
     return {
+        getAccessTokenFromCode: baseHttpService.post.bind(this, '../api/getAccessTokenFromCode'),
         getMembershipId: baseHttpService.get.bind(this, '../api/getMembershipIdByUserName'),
         getBaseCharacterInfo: baseHttpService.get.bind(this, '../api/getCharacterInfoByMembershipId'),
         getCharacterStatsData: baseHttpService.get.bind(this, '../api/getCharacterStatsById'),

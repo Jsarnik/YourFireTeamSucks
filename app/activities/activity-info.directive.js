@@ -1,5 +1,5 @@
 angular
-	.module('fireTeam.common')
+	.module('fireTeam.activity')
 	.controller('activityInfoCtrl', activityInfoCtrl)
 	.directive('activityInfo', activityInfo);
 

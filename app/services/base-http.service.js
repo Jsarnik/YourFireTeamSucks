@@ -1,11 +1,12 @@
 angular.module('fireTeam.common')
 		.factory('BaseHttpService', baseHttpService);
 
-	baseHttpService.$inject = ['$http'];
+	baseHttpService.$inject = ['$http', '$q'];
 
-	function baseHttpService($http) {
+	function baseHttpService($http, $q) {
 		return {
 			get: get,
+			post: post
 		};
 
 		function get(path, model) {
@@ -17,10 +18,42 @@ angular.module('fireTeam.common')
 
 			return $http.get(path, config)
 				.then(function(response) {
-					return response.data;
+					return $q(function(resolve, reject) {
+						resolve(handleSuccess(response));
+					});
 				})
 				.catch(function(response) {
-					return response.data;
+					return $q(function(resolve, reject) {
+						resolve(handleError(response));
+					});
 				});
+		}
+
+		function post(path, model) {
+			var config = {};
+
+			if (model) {
+				config.params = model;
+			}
+
+			return $http.post(path, config)
+				.then(function(response) {
+					return $q(function(resolve, reject) {
+						resolve(handleSuccess(response));
+					});
+				})
+				.catch(function(response) {
+					return $q(function(resolve, reject) {
+						resolve(handleError(response));
+					});
+				});
+		}
+
+		function handleSuccess(response) {	
+			return response.data;			
+		}
+
+		function handleError(response) {
+			return response.data;	
 		}
 	};

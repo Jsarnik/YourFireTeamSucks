@@ -1,23 +1,29 @@
 
 angular.module('fireTeam', [
 	'fireTeam.common',
-    'ui.router'
+  'fireTeam.activity',
+  'fireTeam.members',
+  'fireTeam.auth',
+  'ui.router'
 ])
 .run(function ($rootScope) {
   $rootScope.const = {
-	bungieRoot: 'http://www.bungie.net'
+	   bungieRoot: 'http://www.bungie.net'
   }
 })
 .config(['$stateProvider', function ($stateProvider) {
 	    'use strict';
 
       $stateProvider
-              .state('search', {
+            .state('home', {
+                url: '/',
+                templateUrl: 'index.html'
+            }).state('search', {
                 url: '/search/:platform?members?mode?instanceId',
                 templateUrl: 'search-results.html'
             }).state('about', {
                 url: '/about',
-                templateUrl: 'about.html'
+                templateUrl: 'about/about.html'
             });
 	}]);
 
