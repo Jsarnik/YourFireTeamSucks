@@ -8,9 +8,10 @@ angular.module('fireTeam.members')
 
 	var membersModelObject = {
 		getMembersCharacterInfo: function(memberObject) {
-			debugger;
 			return $q.when(charactersModel || getMembersCharacterInfo(memberObject));
-			//return getMembersCharacterInfo(memberObject);
+		},
+		getCharacterItems: function(itemArray){
+			return getCharacterItems(itemArray);
 		},
 		cancelAllPromises: function(){
 			progress = 0;
@@ -44,27 +45,73 @@ angular.module('fireTeam.members')
     function getCharacterData(memberObject, characterId) {
 		var deferred = currentDeferred = $q.defer();
 
-
-
 		membersOptionsService.getCompleteCharacterInfo({membershipType: memberObject.platform, membershipId: memberObject.membershipId, characterId: characterId}).then(function (response) {	
 			
-			console.log(response);
 			if(response.ErrorCode && response.ErrorCode > 1){
 				deferred.resolve(response);
 				return deferred.promise;
 			}
-			
-			// var characterModel = {
-			// 	definitions: buildCharacterDetailsModel(response.Response.definitions)
-			// }
-			// deferred.resolve(characterModel);
+
+			deferred.resolve(response.Response);
 			
 		});
 		return deferred.promise;
 	};	
 
+	function getCharacterItems(itemArray){
+		var deferred = currentDeferred = $q.defer();
+		membersOptionsService.getItemDefinitions({hashArray: itemArray}).then(function(response){
+			deferred.resolve(response);
+		});
+		return deferred.promise;
+	}
+
 	function buildCharacterDetailsModel(data){
 		
+	}
+
+	function buildMembersItemModel(){
+		var model = {
+			equiped:{
+				weapons: {
+					primary: {},
+					secondary:{},
+					heavy: {}
+				},
+				armor: {
+					head: {},
+					arms: {},
+					chest:{},
+					legs: {},
+					classItem: {}
+				}
+				general: {
+					ghost:{},
+					artifact: {}
+				},
+				etc:{}
+			}
+			vault: {
+				weapons: {
+					primary: {},
+					secondary:{},
+					heavy: {}
+				},
+				armor: {
+					head: {},
+					arms: {},
+					chest:{},
+					legs: {},
+					classItem: {}
+				}
+				general: {
+					ghost:{},
+					artifact: {}
+				},
+				etc:{}
+			}
+			
+		}
 	}
 
 	return membersModelObject;

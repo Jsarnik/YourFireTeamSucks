@@ -22,8 +22,11 @@ function fireteamMembersCtrl($rootScope, $scope, $state, membersModelFactory){
 	var self = this;
 	self.m = $scope.m = {
 		platform: $state.params.platform,
-		fireTeamMembers : {}
+		fireTeamMembers : null
 	}
+
+	$scope.queryTest = queryTest;
+	$scope.getChar = getChar;
 
 	activate();
 
@@ -38,10 +41,39 @@ function fireteamMembersCtrl($rootScope, $scope, $state, membersModelFactory){
 		}
 
 		membersModelFactory.getMembersCharacterInfo(membersObject).then(function(response){
-			self.m.fireTeamMembers = response;
-			return response;
+			self.m.fireTeamMembers = response[0].data;
+			return response[0].data;
 		}).then(function(characters){
-			console.log(characters)
+			console.log(characters);
+		});
+	}
+
+	function getChar(){
+		var membersObject = {
+			platform: 2,
+			membershipId: '4611686018446331620',
+			characters: ['2305843009273807564']
+		}
+
+		membersModelFactory.getMembersCharacterInfo(membersObject).then(function(response){
+			self.m.fireTeamMembers = response[0].data;
+			console.log(self.m.fireTeamMembers);
+			//return response.Response.data;
+		});
+	}
+
+	function queryTest(){
+		debugger;
+		var items = self.m.fireTeamMembers.characterBase.peerView.equipment;
+		var hashArray = [];
+
+		angular.forEach(items, function(item){
+			hashArray.push(item.itemHash);
+		});
+
+		membersModelFactory.getCharacterItems(hashArray).then(function(response){
+			self.m.fireTeamMembers.items = response;
+			console.log(response);
 		});
 	}
 }

@@ -1,3 +1,9 @@
 <div>
 	MEMBERS
+	<items-directive ng-if="ctrl.m.fireTeamMembers.items" ng-repeat="item in ctrl.m.fireTeamMembers.items"
+		item-model="item">
+	</items-directive>
+
+	<button ng-click="getChar()">Get Character</button>
+	<button ng-click="queryTest()">Query Test</button>
 </div>

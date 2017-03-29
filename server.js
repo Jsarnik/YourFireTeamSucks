@@ -8,13 +8,14 @@ var bodyParser = require('body-parser');
 var ejs = require('ejs');
 var session = require('express-session');
 var timeout = require('connect-timeout');
-var db = require('sqlite3');
+var sqlite3 = require('sqlite3');
 
 //Set our SSL Credentials
 const privateKey = fs.readFileSync('./ssl/key.pem', 'utf8');
 const certificate = fs.readFileSync('./ssl/cert.pem', 'utf8');
 const passphrase = fs.readFileSync('./ssl/passphrase.txt', 'utf8');
 const sslOptions = {key:privateKey, cert: certificate, passphrase: passphrase};
+const dbPath = './sqliteDB/world_sql_content_64ba059d78e743476271c13d9ff5feff.content2';
 var cookieJar;
 
 // Create our Express application
@@ -30,7 +31,6 @@ app.use(bodyParser.urlencoded({
 }));
 
 var apiKey = '52cfc245497e4f11b0439d64b610e510';
-//var key = 'b1ccfe5ba9154988b1356d03e85fa735';
 var credentials = {destinyKey: apiKey, defaultMemberType: 2};
 var currentAuth = null;
 var currentUserAuthRequestHeader = {
@@ -248,6 +248,33 @@ router.get('/getWeaponDefinitionById', function(req, res, next){
     });
 });
 
+router.get('/queryItemsByHash', function(req, res, next){
+      var hashArray = req.query.hashArray;
+      var whereString = '';
+      var append = '';
+
+      for(var i = 0; i < hashArray.length; i++){
+        if(i === 0){
+          append = " LIKE '%" + hashArray[i] + "%'";
+        }
+        else{
+          append = " OR json LIKE '%" + hashArray[i] + "%'";
+        }
+        whereString += append;
+      }
+
+      var q = "Select DISTINCT json From DestinyInventoryItemDefinition where json" + whereString;
+
+      queryManifest(q, function(response){
+        console.log(response);
+        res.setHeader('Content-Type', 'application/json');
+        res.status(200);
+        res.json(response);
+        res.end();
+      });
+
+});
+
 function cookieString (cookies) {
     var cookieString = '';
 
@@ -267,6 +294,30 @@ function parseCookies (cookies) {
     });
 
     return list;
+}
+
+function queryManifest(query, callback){
+  let db = new sqlite3.Database(dbPath);
+  var jsonArray = [];
+
+  db.serialize(function(){
+    db.each(query, function(err, row){
+      if(err){
+        throw err;
+      }
+      
+      try{
+        jsonArray.push(JSON.parse(row.json));
+      }
+      catch(e){
+        console.log(e);
+      }
+
+    }, function(){
+        callback(jsonArray);
+    });
+
+  });
 }
 
 app.use(timeout(120000));

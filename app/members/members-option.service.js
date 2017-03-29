@@ -4,5 +4,6 @@ angular.module('fireTeam.members')
 
     return {
         getCompleteCharacterInfo: baseHttpService.get.bind(this, '../api/getCompleteCharacterInfo'),
+        getItemDefinitions: baseHttpService.get.bind(this, '../api/queryItemsByHash')
     };
 }]);
